@@ -1,21 +1,29 @@
 @import "tailwindcss";
+@import "./app-shell.css";
 
-:root { --black: #101311; --black-soft: #171d18; --paper: #f0eee4; --muted: #8c978d; --line: #435247; --green: #b5ce75; --orange: #e18c55; --blue: #91c1bf; }
-* { box-sizing: border-box; }
-html { background: var(--black); }
-body { margin: 0; background: var(--black); color: var(--paper); font-family: "Trebuchet MS", Arial, sans-serif; }
-button, input, select { font: inherit; }
-button { cursor: pointer; }
-button:focus-visible, input:focus-visible, select:focus-visible { outline: 3px solid var(--green); outline-offset: 4px; }
-::selection { background: var(--green); color: var(--black); }
-.tally-page { min-height: 100vh; background: radial-gradient(circle at 10% 0%, #243126 0, var(--black) 36%); padding: 23px 20px 31px; }
-.tally-shell { width: min(1180px, 100%); margin: auto; }
-.tally-header, .tally-footer, .tally-brand, .ledger-title, .activity-row, .breakdown-row, .add-activity { display: flex; align-items: center; justify-content: space-between; gap: 18px; }.tally-header, .tally-footer, .tally-brand, .ledger-title, .tally-status, .tally-kicker, .tally-total span, .tally-total small, .activity-row small, .activity-index, .breakdown-row span, .factor-note, .activity-form span { color: var(--muted); font: 10px "Courier New", monospace; letter-spacing: .11em; text-transform: uppercase; }.tally-header { min-height: 48px; border-bottom: 1px solid var(--line); }.tally-brand { color: var(--paper); font-weight: 700; }.tally-mark { display: grid; place-items: center; width: 31px; height: 31px; border: 1px solid var(--green); color: var(--green); font-size: 12px; letter-spacing: -.08em; }.tally-status { color: var(--orange); }
-.tally-hero { display: grid; grid-template-columns: minmax(0, 1fr) 220px; gap: 65px; align-items: end; padding: 96px 0 83px; }.tally-kicker { color: var(--green); }.tally-hero h1 { margin: 18px 0 0; font: 400 clamp(4rem, 10vw, 9rem)/.78 Georgia, serif; letter-spacing: -.1em; }.tally-hero h1 em, .tally-breakdown h2 em { color: var(--green); font-style: italic; }.tally-deck { max-width: 510px; margin: 32px 0 0; color: var(--muted); font: 17px/1.6 Georgia, serif; }.tally-total { border-top: 1px solid var(--green); padding: 14px 0 10px; }.tally-total strong { display: block; margin: 15px 0 9px; color: var(--green); font: 62px/.82 "Courier New", monospace; letter-spacing: -.12em; }.tally-total small { line-height: 1.5; text-transform: none; }
-.tally-workspace { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(290px, .6fr); gap: 50px; padding: 34px 0 76px; }.activity-ledger { border-top: 2px solid var(--paper); }.ledger-title { min-height: 42px; border-bottom: 1px solid var(--line); }.ledger-title span:first-child { color: var(--green); }.activity-row { min-height: 92px; border-bottom: 1px solid var(--line); }.activity-row > span:nth-child(2) { display: grid; gap: 7px; flex: 1; }.activity-row strong { font: 18px Georgia, serif; }.activity-row small { font-size: 9px; letter-spacing: .06em; text-transform: none; }.activity-row > b { color: var(--green); font: 15px "Courier New", monospace; white-space: nowrap; }.activity-row > b small { color: var(--muted); }.activity-row > button { border: 0; background: transparent; color: var(--muted); font-size: 22px; }.activity-row > button:hover { color: var(--orange); }.empty-tally { padding: 35px 0; color: var(--muted); font: 13px "Courier New", monospace; }
-.tally-breakdown { border-left: 1px solid var(--line); padding-left: 28px; }.tally-breakdown h2 { margin: 14px 0 30px; font: 400 clamp(2.9rem, 6vw, 5.5rem)/.82 Georgia, serif; letter-spacing: -.1em; }.breakdown-row { display: block; padding: 14px 0; border-top: 1px solid var(--line); }.breakdown-row > div { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }.breakdown-row span { color: var(--paper); }.breakdown-row strong { color: var(--green); font: 14px "Courier New", monospace; }.breakdown-row i { display: block; height: 7px; margin-top: 11px; background: #2c372d; }.breakdown-row i b { display: block; height: 100%; background: var(--green); }.factor-note { margin: 26px 0 0; line-height: 1.6; letter-spacing: .04em; text-transform: none; }
-.add-activity { align-items: end; border-top: 1px solid var(--line); padding: 34px 0 45px; }.add-activity h2 { margin: 12px 0 0; font: 400 33px/.9 Georgia, serif; letter-spacing: -.07em; }.activity-form { display: grid; grid-template-columns: 1.5fr 110px 100px auto; gap: 12px; align-items: end; flex: 1; max-width: 690px; }.activity-form label { display: grid; gap: 8px; }.activity-form input, .activity-form select { width: 100%; border: 0; border-bottom: 1px solid var(--muted); border-radius: 0; background: transparent; color: var(--paper); padding: 10px 0; outline: 0; }.activity-form select { color-scheme: dark; }.activity-form button { border: 1px solid var(--green); padding: 11px 12px; background: var(--green); color: var(--black); font: 11px "Courier New", monospace; white-space: nowrap; }.activity-form button:hover { background: var(--paper); }
-.tally-footer { border-top: 1px solid var(--line); padding-top: 18px; }
-@media (max-width: 850px) { .tally-hero, .tally-workspace { display: block; }.tally-total { width: 220px; margin: 50px 0 0 auto; }.tally-breakdown { margin-top: 50px; padding: 28px 0 0; border-left: 0; border-top: 1px solid var(--line); }.add-activity { display: block; }.activity-form { margin-top: 32px; max-width: none; } }
-@media (max-width: 560px) { .tally-page { padding-inline: 16px; }.tally-header > span:nth-child(2) { display: none; }.tally-hero { padding: 72px 0 59px; }.tally-hero h1 { font-size: clamp(4rem, 19vw, 6rem); }.activity-row { gap: 10px; }.activity-row > span:first-child { display: none; }.activity-row strong { font-size: 16px; }.activity-form { display: block; }.activity-form label { margin-top: 18px; }.activity-form button { margin-top: 22px; }.tally-footer { display: grid; gap: 8px; } }
-@media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition-duration: .01ms !important; } }
+html, body { margin: 0; background: var(--as-bg); }
+html { scroll-padding-top: 64px; }
+
+/* Carbon Tally pieces on top of the App shell (shell tokens only). */
+.ct-total, .ct-kg { white-space: nowrap; color: var(--as-fg); font-weight: 600; font-variant-numeric: tabular-nums; }
+.ct-error { min-height: 0; margin: -6px 0 0; color: var(--as-danger); font-size: 14px; }
+.ct-error:empty { display: none; }
+.as-field input[aria-invalid="true"] { border-color: var(--as-danger); }
+.ct-hint { color: var(--as-muted); font-size: 14px; }
+.ct-empty-action { margin-top: 8px; }
+.ct-breakdown { margin-top: 16px; }
+.ct-breakdown h2 { margin: 0; font-size: 17px; font-weight: 600; }
+.ct-breakdown ul { display: grid; gap: 12px; margin: 0; padding: 0; list-style: none; }
+.ct-bar-head { display: flex; justify-content: space-between; gap: 12px; font-size: 15px; }
+.ct-bar-head strong { font-variant-numeric: tabular-nums; }
+.ct-bar { display: block; height: 8px; margin-top: 6px; border-radius: 980px; background: var(--as-selected); overflow: hidden; }
+.ct-bar span { display: block; height: 100%; border-radius: inherit; background: var(--as-button); }
+
+/* Windows High Contrast: keep the chosen list, bars and pills visible with system colours. */
+@media (forced-colors: active) {
+  .as-lists button[aria-current="true"] { outline: 2px solid Highlight; outline-offset: -2px; }
+  .ct-bar { border: 1px solid CanvasText; }
+  .ct-bar span { forced-color-adjust: none; background: Highlight; }
+  .as-pill { border: 1px solid CanvasText; }
+  .as-button, .as-plain { border: 1px solid ButtonText; }
+}

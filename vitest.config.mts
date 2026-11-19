@@ -6,6 +6,10 @@ export default defineConfig({
   test: {
     environment: "node",
     include: ["tests/**/*.test.{ts,tsx}"],
-    coverage: { provider: "v8", include: ["app/**/*.{ts,tsx}", "lib/**/*.ts"], exclude: ["app/more-projects/**"] },
+    coverage: {
+      provider: "v8",
+      include: ["app/**/*.{ts,tsx}", "lib/**/*.ts", "components/**/*.tsx", "next.config.ts"],
+      thresholds: { lines: 90 },
+    },
   },
 });
