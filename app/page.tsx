@@ -9,6 +9,10 @@ type Filter = "All" | Category;
 type Draft = { label: string; amount: string; category: Category };
 const EMPTY_DRAFT: Draft = { label: "", amount: "", category: "Travel" };
 const kg = (value: number) => `${value.toFixed(1)} kg`;
+// index: where it sat in the ledger when removed. nextShown / prevShown: the rows shown around it, for focus.
+type RemovedEntry = { item: Activity; index: number; nextShown?: number; prevShown?: number };
+type RemovedBatch = { items: RemovedEntry[]; viaKeyboard: boolean };
+const removedLabel = (items: RemovedEntry[]) => (items.length === 1 ? `Removed “${items[0].item.label}”` : `Removed ${items.length} lines`);
 
 /** Why the draft cannot be added yet, field by field (empty strings when it can). */
 function draftErrors(draft: Draft): { label: string; amount: string } {
@@ -26,12 +30,17 @@ export default function Home() {
   const [draft, setDraft] = useState<Draft>(EMPTY_DRAFT);
   const [touched, setTouched] = useState({ label: false, amount: false });
   const [announcement, setAnnouncement] = useState("");
-  const [removed, setRemoved] = useState<{ item: Activity; index: number } | null>(null);
+  // Every removal still inside the Undo window: one Undo puts them all back where they were.
+  const [removed, setRemovedState] = useState<RemovedBatch | null>(null);
+  // The latest batch, so two removals before a re-render still both land in it.
+  const removedRef = useRef<RemovedBatch | null>(null);
+  const setRemoved = (batch: RemovedBatch | null) => { removedRef.current = batch; setRemovedState(batch); };
   const [toastFocused, setToastFocused] = useState(false);
   const labelRef = useRef<HTMLInputElement>(null);
   const newRef = useRef<HTMLButtonElement>(null);
   const undoRef = useRef<HTMLButtonElement>(null);
   const toastRef = useRef<HTMLDivElement>(null);
+  const focusRowsNext = useRef<number[] | null>(null);
   const wasComposing = useRef(false);
 
   const totals = useMemo(() => computeTotals(activities), [activities]);
@@ -47,9 +56,22 @@ export default function Home() {
     else if (wasComposing.current) newRef.current?.focus();
     wasComposing.current = composing;
   }, [composing]);
+  // A removal made from the keyboard moves focus to Undo (the focused Remove button has just gone).
+  useEffect(() => { if (removed?.viaKeyboard) undoRef.current?.focus(); }, [removed]);
+  // When the toast closes after Undo or Escape, focus goes back near the removed row once the list has re-rendered:
+  // the first of these rows still shown, else New line (or the composer's first field when it is open).
+  useEffect(() => {
+    const ids = focusRowsNext.current;
+    if (removed || !ids) return;
+    focusRowsNext.current = null;
+    const shown = [...document.querySelectorAll<HTMLElement>(".as-row[data-line]")];
+    const row = ids.map((id) => shown.find((entry) => entry.dataset.line === String(id))).find(Boolean);
+    (row?.querySelector<HTMLButtonElement>(".as-danger") ?? newRef.current ?? labelRef.current)?.focus();
+  }, [removed, activities]);
+  // The Undo toast closes 6 s after the latest removal (each removal restarts it), but never while it holds focus.
   useEffect(() => {
     if (!removed || toastFocused) return;
-    const timer = window.setTimeout(() => setRemoved(null), 6000);
+    const timer = window.setTimeout(() => { removedRef.current = null; setRemovedState(null); }, 6000);
     return () => window.clearTimeout(timer);
   }, [removed, toastFocused]);
   const toastShown = removed !== null;
@@ -79,18 +101,32 @@ export default function Home() {
   }
   function remove(item: Activity, viaKeyboard: boolean) {
     const index = activities.findIndex((entry) => entry.id === item.id);
+    if (index < 0) return;
     setActivities((current) => removeActivity(current, item.id));
-    setRemoved({ item, index });
-    setAnnouncement(`Removed “${item.label}”. Undo is available for a few seconds.`);
-    if (viaKeyboard) window.setTimeout(() => undoRef.current?.focus(), 0);
+    const shownAt = visible.findIndex((entry) => entry.id === item.id);
+    const entry: RemovedEntry = { item, index, nextShown: visible[shownAt + 1]?.id, prevShown: shownAt > 0 ? visible[shownAt - 1].id : undefined };
+    const items = [...(removedRef.current?.items ?? []), entry];
+    setRemoved({ items, viaKeyboard });
+    setAnnouncement(`${removedLabel(items)}. Undo is available for a few seconds.`);
   }
-  function undo() {
-    if (!removed) return;
-    const { item, index } = removed;
-    setActivities((current) => [...current.slice(0, index), item, ...current.slice(index)]);
+  function closeToast(focusIds?: number[]) {
+    const last = removedRef.current?.items.at(-1);
+    // Dismissed: the row after the removed one, else the one before it.
+    focusRowsNext.current = focusIds ?? [last?.nextShown, last?.prevShown].filter((id): id is number => id !== undefined);
     setRemoved(null);
     setToastFocused(false);
-    setAnnouncement(`Restored “${item.label}”.`);
+  }
+  function undo() {
+    const items = removedRef.current?.items;
+    if (!items?.length) return;
+    // Latest removal first, so each index refers to the ledger as it was just before that removal.
+    setActivities((current) => items.reduceRight(
+      (list, { item, index }) => (list.some((entry) => entry.id === item.id) ? list : [...list.slice(0, index), item, ...list.slice(index)]),
+      current,
+    ));
+    setAnnouncement(items.length === 1 ? `Restored “${items[0].item.label}”.` : `Restored ${items.length} lines.`);
+    // Undone: back to the restored row (the latest one, where the user was last).
+    closeToast([items[items.length - 1].item.id]);
   }
 
   const title = filter === "All" ? "All lines" : filter;
@@ -155,7 +191,7 @@ export default function Home() {
           {visible.length ? (
             <ul className="as-list" aria-label={title}>
               {visible.map((item) => (
-                <li className="as-row" key={item.id}>
+                <li className="as-row" key={item.id} data-line={item.id}>
                   <div>
                     <h3>{item.label}</h3>
                     <p>{item.amount} {item.unit} × default factor {item.factor.toFixed(2)} = <strong className="ct-kg">{kg(emission(item))}</strong></p>
@@ -203,10 +239,10 @@ export default function Home() {
           aria-label="Undo remove"
           onFocus={() => setToastFocused(true)}
           onBlur={(event) => { if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setToastFocused(false); }}
-          onKeyDown={(event) => { if (event.key === "Escape") { setRemoved(null); setToastFocused(false); } }}
+          onKeyDown={(event) => { if (event.key === "Escape") closeToast(); }}
         >
-          <span>Removed “{removed.item.label}”</span>
-          <button ref={undoRef} type="button" className="as-plain" onClick={undo}>Undo</button>
+          <span>{removedLabel(removed.items)}</span>
+          <button ref={undoRef} type="button" className="as-plain" onClick={undo} aria-label={removed.items.length === 1 ? undefined : `Undo remove of ${removed.items.length} lines`}>Undo</button>
         </div>
       ) : null}
 

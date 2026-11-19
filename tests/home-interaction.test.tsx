@@ -85,10 +85,43 @@ describe("remove and undo", () => {
     expect(rows()).toEqual(["Motorbike commute", "Grid electricity", "Rice meal"]);
   });
 
+  it("consecutive removes restore together with one Undo, each in its place", () => {
+    vi.useFakeTimers();
+    const before = rows();
+    press($('[aria-label="Remove Grid electricity"]')!);
+    act(() => { vi.advanceTimersByTime(4000); });
+    press($('[aria-label="Remove Motorbike commute"]')!);
+    expect(rows()).toEqual(["Rice meal"]);
+    expect($(".as-toast span")?.textContent).toBe("Removed 2 lines");
+    expect(button("Undo").getAttribute("aria-label")).toBe("Undo remove of 2 lines");
+    // The second removal restarted the 6 s window.
+    act(() => { vi.advanceTimersByTime(4000); });
+    press(button("Undo"));
+    expect(rows()).toEqual(before);
+    expect($('.as-sr[role="status"]')?.textContent).toBe("Restored 2 lines.");
+    expect($(".as-toast")).toBeNull();
+  });
+
+  it("keyboard remove focuses Undo; Undo focuses the restored line, Escape the next one", () => {
+    press($('[aria-label="Remove Motorbike commute"]')!, 0);
+    expect(document.activeElement).toBe(button("Undo"));
+    press(button("Undo"), 0);
+    expect(document.activeElement).toBe($('[aria-label="Remove Motorbike commute"]'));
+    press($('[aria-label="Remove Grid electricity"]')!, 0);
+    act(() => { $(".as-toast")!.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true })); });
+    expect($(".as-toast")).toBeNull();
+    expect(document.activeElement).toBe($('[aria-label="Remove Rice meal"]'));
+    // The last row: the one before it.
+    press($('[aria-label="Remove Rice meal"]')!, 0);
+    act(() => { $(".as-toast")!.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true })); });
+    expect(document.activeElement).toBe($('[aria-label="Remove Motorbike commute"]'));
+  });
+
   it("shows empty states and the toast closes on its own or on Escape", () => {
     vi.useFakeTimers();
     press(button("Food", $(".as-side")!));
-    press($("[aria-label='Remove Rice meal']")!, 0);
+    // A pointer removal: focus stays put, so the toast closes on its own (a keyboard one holds it open on Undo).
+    press($("[aria-label='Remove Rice meal']")!, 1);
     expect($(".as-empty")!.textContent).toContain("No Food lines");
     act(() => { vi.runOnlyPendingTimers(); });
     act(() => { vi.runOnlyPendingTimers(); });
