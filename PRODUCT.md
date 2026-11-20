@@ -46,3 +46,5 @@ A curious individual, or a portfolio visitor, who wants to see which everyday in
 
 - The metadata test reads `NEXT_PUBLIC_SITE_URL` from the environment at import, so it checks the default domain only
   when the variable is unset (CI); a custom value is not covered.
+- New line opened from a category list (for example Travel) still starts on the default category, not that list's.
+- After "Show all lines" from an empty list, focus is not moved to the restored list.
