@@ -44,10 +44,14 @@ export function barWidth(totals: Totals, category: Category): number {
 export type NewActivity = { label: string; amount: number; category: Category };
 
 /** Adds a line, or returns the list unchanged when the label is blank or the amount is not a positive number. */
-export function addActivity(activities: Activity[], input: NewActivity): Activity[] {
+/**
+ * `reserved`: ids still held elsewhere (lines removed but still undoable), so a new line never takes
+ * one of them and Undo can always put the removed line back.
+ */
+export function addActivity(activities: Activity[], input: NewActivity, reserved: readonly number[] = []): Activity[] {
   const label = input.label.trim();
   if (!label || !Number.isFinite(input.amount) || input.amount <= 0) return activities;
-  const id = activities.reduce((max, item) => Math.max(max, item.id), 0) + 1;
+  const id = [...activities.map((item) => item.id), ...reserved].reduce((max, value) => Math.max(max, value), 0) + 1;
   return [...activities, { id, label, amount: input.amount, unit: unitByCategory[input.category], factor: factorByCategory[input.category], category: input.category }];
 }
 

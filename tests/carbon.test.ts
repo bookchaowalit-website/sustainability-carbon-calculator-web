@@ -60,6 +60,14 @@ describe("addActivity", () => {
   });
 });
 
+describe("addActivity reserved ids", () => {
+  it("never reuses an id still held by an undoable removal", () => {
+    const left = initialActivities.filter((item) => item.id !== 3);
+    expect(addActivity(left, { label: "x", amount: 1, category: "Food" }).at(-1)!.id).toBe(3);
+    expect(addActivity(left, { label: "x", amount: 1, category: "Food" }, [3]).at(-1)!.id).toBe(4);
+  });
+});
+
 describe("removeActivity", () => {
   it("removes only the matching line", () => {
     const next = removeActivity(initialActivities, 2);

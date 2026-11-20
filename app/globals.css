@@ -7,7 +7,8 @@ html { scroll-padding-top: 64px; }
 /* Carbon Tally pieces on top of the App shell (shell tokens only). */
 .ct-total, .ct-kg { white-space: nowrap; color: var(--as-fg); font-weight: 600; font-variant-numeric: tabular-nums; }
 .ct-error { min-height: 0; margin: -6px 0 0; color: var(--as-danger); font-size: 14px; }
-.ct-error:empty { display: none; }
+/* Empty: out of the layout but still in the accessibility tree, so the live region exists before the first error. */
+.ct-error:empty { position: absolute; width: 1px; height: 1px; margin: 0; overflow: hidden; clip-path: inset(50%); }
 .as-field input[aria-invalid="true"] { border-color: var(--as-danger); }
 .ct-hint { color: var(--as-muted); font-size: 14px; }
 .ct-empty-action { margin-top: 8px; }
@@ -21,7 +22,9 @@ html { scroll-padding-top: 64px; }
 
 /* Windows High Contrast: keep the chosen list, bars and pills visible with system colours. */
 @media (forced-colors: active) {
-  .as-lists button[aria-current="true"] { outline: 2px solid Highlight; outline-offset: -2px; }
+  /* The chosen list gets a Highlight border; the focus ring stays a separate 3px CanvasText outline. */
+  .as-lists button[aria-current="true"] { border: 2px solid Highlight; padding: 0 10px; }
+  .as-lists button:focus-visible { outline: 3px solid CanvasText; outline-offset: 2px; }
   .ct-bar { border: 1px solid CanvasText; }
   .ct-bar span { forced-color-adjust: none; background: Highlight; }
   .as-pill { border: 1px solid CanvasText; }

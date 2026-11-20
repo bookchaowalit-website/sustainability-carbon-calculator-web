@@ -91,7 +91,9 @@ export default function Home() {
   function add(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setTouched({ label: true, amount: true });
-    const next = addActivity(activities, { label: draft.label, amount: Number(draft.amount), category: draft.category });
+    // Removed lines still in the Undo window keep their ids: a new line must not reuse one.
+    const reserved = removedRef.current?.items.map(({ item }) => item.id) ?? [];
+    const next = addActivity(activities, { label: draft.label, amount: Number(draft.amount), category: draft.category }, reserved);
     if (next === activities) return;
     const added = next[next.length - 1];
     setActivities(next);

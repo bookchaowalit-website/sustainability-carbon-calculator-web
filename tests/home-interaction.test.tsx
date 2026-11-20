@@ -85,6 +85,17 @@ describe("remove and undo", () => {
     expect(rows()).toEqual(["Motorbike commute", "Grid electricity", "Rice meal"]);
   });
 
+  it("remove, add, Undo: the removed line comes back and the new line stays", () => {
+    press($("[aria-label='Remove Rice meal']")!);
+    press(button("New line"));
+    const [label, amount] = fields();
+    type(label, "Bus");
+    type(amount, "5");
+    submit();
+    press(button("Undo", $(".as-toast")!));
+    expect(rows()).toEqual(["Motorbike commute", "Grid electricity", "Rice meal", "Bus"]);
+  });
+
   it("consecutive removes restore together with one Undo, each in its place", () => {
     vi.useFakeTimers();
     const before = rows();
@@ -135,5 +146,16 @@ describe("remove and undo", () => {
     expect($(".as-toast")).toBeNull();
     press($("[aria-label='Remove Grid electricity']")!);
     expect($(".as-empty")!.textContent).toContain("The ledger is empty");
+  });
+});
+
+describe("stylesheet", () => {
+  it("forced-colors keeps the focus ring apart from the chosen list, and empty errors stay in the a11y tree", async () => {
+    const { readFileSync } = await import("node:fs");
+    const css = readFileSync("app/globals.css", "utf8");
+    const block = css.slice(css.indexOf("@media (forced-colors: active)"));
+    expect(block).toMatch(/\.as-lists button\[aria-current="true"\] \{ border: 2px solid Highlight/);
+    expect(block).toMatch(/\.as-lists button:focus-visible \{ outline: 3px solid CanvasText/);
+    expect(css).not.toMatch(/\.ct-error:empty \{ display: none/);
   });
 });
