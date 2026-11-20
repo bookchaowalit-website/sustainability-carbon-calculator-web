@@ -41,3 +41,8 @@ A curious individual, or a portfolio visitor, who wants to see which everyday in
 ## Boundaries
 
 - Browser-only, no server data. The only outbound call is a Sentry error report, when the DSN is set.
+
+## Known limits
+
+- The metadata test reads `NEXT_PUBLIC_SITE_URL` from the environment at import, so it checks the default domain only
+  when the variable is unset (CI); a custom value is not covered.

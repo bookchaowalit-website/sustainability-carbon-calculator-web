@@ -216,6 +216,7 @@ export default function Home() {
 
           <section className="as-composer ct-breakdown" aria-labelledby="breakdown-title">
             <h2 id="breakdown-title">Where it sits</h2>
+            <p className="ct-breakdown-note">Totals for every line, whatever list is shown.</p>
             <ul>
               {categories.map((item) => (
                 <li key={item}>
@@ -227,7 +228,7 @@ export default function Home() {
           </section>
 
           <p className="as-note">
-            Demonstrative estimate, not audited. Default factors, in kg CO₂e per unit, are kept simple to show the shape of the ledger, not to certify an emissions report. Nothing leaves this page; no offset or certification.
+            Demonstrative estimate, not audited. Default factors, in kg CO₂e per unit, are kept simple to show the shape of the ledger, not to certify an emissions report. Your activity lines stay in this browser; only technical error reports go to Sentry. No offset or certification.
           </p>
         </main>
       </div>

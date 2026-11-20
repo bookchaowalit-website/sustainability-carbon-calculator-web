@@ -14,6 +14,7 @@ html { scroll-padding-top: 64px; }
 .ct-empty-action { margin-top: 8px; }
 .ct-breakdown { margin-top: 16px; }
 .ct-breakdown h2 { margin: 0; font-size: 17px; font-weight: 600; }
+.ct-breakdown-note { margin: 4px 0 12px; color: var(--as-muted); font-size: 14px; }
 .ct-breakdown ul { display: grid; gap: 12px; margin: 0; padding: 0; list-style: none; }
 .ct-bar-head { display: flex; justify-content: space-between; gap: 12px; font-size: 15px; }
 .ct-bar-head strong { font-variant-numeric: tabular-nums; }

@@ -12,7 +12,11 @@ describe("home page on the App shell", () => {
     for (const item of initialActivities) expect(html).toContain(item.label);
     expect(html).toContain("12.9 kg CO₂e");
     expect(html).toContain("not audited");
-    expect(html).toContain("no offset or certification");
+    expect(html).toContain("No offset or certification");
+    // Sentry error reporting is on, so the note must not say nothing leaves the page.
+    expect(html).not.toContain("Nothing leaves this page");
+    expect(html).toContain("only technical error reports go to Sentry");
+    expect(html).toContain("Totals for every line, whatever list is shown.");
     expect(html).toContain('href="https://bookchaowalit.com/"');
   });
 
